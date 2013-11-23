@@ -54,6 +54,6 @@ All rows with same KeyColumn (and Subkey if persists) including deleted one will
 
 You also can find inactual versions after reseting scope. For example you can find old row with Primary key $pk;
 
-	$model = Conract::model()->resetScope()->findByPk($pk);
+	$model = Contract::model()->resetScope()->findByPk($pk);
 	
 Default scope in VersionActiveRecord always sets ActualColumn to 1.
