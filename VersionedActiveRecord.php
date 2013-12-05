@@ -23,97 +23,96 @@ class VersionedActiveRecord extends CActiveRecord
     
     public function defaultScope()
     {
-		$isActualColumn = $this->_actualityColumn;	
-		return array(
-			'condition'=>$this->getTableAlias(false, false).'.'.$isActualColumn.'=1',
-		);
+        $isActualColumn = $this->_actualityColumn;    
+        return array(
+            'condition'=>$this->getTableAlias(false, false).'.'.$isActualColumn.'=1',
+        );
     }
     
     protected function deleteInternal($model = null)
     {
-		if (is_null($model))
-			$model = $this;
+        if (is_null($model))
+            $model = $this;
 
-		$deletedDateColumn = $model->_deletedDateColumn;
-		$isActualColumn = $this->_actualityColumn;	
-		$model->$isActualColumn = 0;
-		$model->$deletedDateColumn = date('d.m.Y H:i:s');	
+        $deletedDateColumn = $model->_deletedDateColumn;
+        $isActualColumn = $this->_actualityColumn;    
+        $model->$isActualColumn = 0;
+        $model->$deletedDateColumn = date('d.m.Y H:i:s');    
     }
     
     protected function getDeleteCriteria()
     {
-		$keyColumn = $this->_keyColumn;
-		$subKeyColumn = $this->_subKeyColumn;
-		$isActualColumn = $this->_actualityColumn;
+        $keyColumn = $this->_keyColumn;
+        $subKeyColumn = $this->_subKeyColumn;
+        $isActualColumn = $this->_actualityColumn;
 
-		$criteria = new CDbCriteria();
-		if (strlen(trim($this->$keyColumn)))
-			$criteria->addCondition($keyColumn.'='.$this->$keyColumn);
-		$criteria->addCondition($isActualColumn.'=1');
+        $criteria = new CDbCriteria();
+        if (strlen(trim($this->$keyColumn)))
+            $criteria->addCondition($keyColumn.'='.$this->$keyColumn);
+        $criteria->addCondition($isActualColumn.'=1');
 
-		if (trim($subKeyColumn))
-			{
-				$subKeyColumnValue = isset($this->_oldAttributes[$subKeyColumn]) ? 
-				$this->_oldAttributes[$subKeyColumn] :
-				$this->$subKeyColumn;
-				if (strlen(trim($subKeyColumnValue)))
-					$criteria->compare($subKeyColumn,$subKeyColumnValue);
-				else
-					$criteria->addCondition('('.$subKeyColumn.' IS NULL OR '.$subKeyColumn.' = \'\')');
-			}
+        if (trim($subKeyColumn)) {
+			$subKeyColumnValue = isset($this->_oldAttributes[$subKeyColumn]) ? 
+			$this->_oldAttributes[$subKeyColumn] :
+			$this->$subKeyColumn;
+			if (strlen(trim($subKeyColumnValue)))
+				$criteria->compare($subKeyColumn,$subKeyColumnValue);
+			else
+				$criteria->addCondition('('.$subKeyColumn.' IS NULL OR '.$subKeyColumn.' = \'\')');
+		}
 
-		return $criteria;
+        return $criteria;
     }
     
     public function delete() {
-		$isActualColumn = $this->_actualityColumn;
-		$deletedDateColumn = $this->_deletedDateColumn;
+        $isActualColumn = $this->_actualityColumn;
+        $deletedDateColumn = $this->_deletedDateColumn;
 
-		//see if some deleted
-		$return = $this->model()->updateAll(
-			array(
-				$isActualColumn => 0,
-				$this->_deletedDateColumn => date('d.m.Y H:i:s'),
-			),
-			$this->getDeleteCriteria()
-		);
+        //see if some deleted
+        $return = $this->model()->updateAll(
+            array(
+                $isActualColumn => 0,
+                $this->_deletedDateColumn => date('d.m.Y H:i:s'),
+            ),
+            $this->getDeleteCriteria()
+        );
 
-		$this->deleteInternal();
+        $this->deleteInternal();
 
-		//return results
-		return true;
+        //return results
+        return true;
     }
     
     public function deleteByPk($pk,$condition='',$params=array())
     {
-	    $model = $this->model()->findByPk($pk, $condition, $params);
-	    if (!is_null($model))
-			return $model->delete() ? 1 : 0;
+        $model = $this->model()->findByPk($pk, $condition, $params);
+        if (!is_null($model))
+            return $model->delete() ? 1 : 0;
     }
     
     public function deleteAll($condition = '', $params = array()) {
-	    $models = $this->model()->findAll($condition, $params);
-	    $c = 0;
-	    foreach($models as $model)
-			$c += $model->delete() ? 1 : 0;
-	    return $c;
+        $models = $this->model()->findAll($condition, $params);
+        $c = 0;
+        foreach($models as $model)
+            $c += $model->delete() ? 1 : 0;
+        return $c;
     }        
     
     public function deleteAllByAttributes($attributes, $condition = '', $params = array()) {
-	    $models = $this->model()->findAllByAttributes($attributes, $condition, $params);
-	    $c = 0;
-	    foreach($models as $model)
-			$c += $model->delete() ? 1 : 0;
-	    return $c;
+        $models = $this->model()->findAllByAttributes($attributes, $condition, $params);
+        $c = 0;
+        foreach($models as $model)
+            $c += $model->delete() ? 1 : 0;
+        return $c;
     }     
     
     protected function afterFind()
     {
-		parent::afterFind();
-		$this->_oldAttributes = $this->attributes;
-		unset($this->_oldAttributes[$this->_versionDateColumn]);
-		unset($this->_oldAttributes[$this->_deletedDateColumn]);
-		unset($this->_oldAttributes[$this->tableSchema->primaryKey]);
+        parent::afterFind();
+        $this->_oldAttributes = $this->attributes;
+        unset($this->_oldAttributes[$this->_versionDateColumn]);
+        unset($this->_oldAttributes[$this->_deletedDateColumn]);
+        unset($this->_oldAttributes[$this->tableSchema->primaryKey]);
     }
     
     public function isChangedChildren()
@@ -123,47 +122,43 @@ class VersionedActiveRecord extends CActiveRecord
     
     public function isChanged()
     {
-		$result = count(array_diff_assoc($this->_oldAttributes, $this->attributes)) > 0;
-		return $result || $this->isChangedChildren();
+        $result = count(array_diff_assoc($this->_oldAttributes, $this->attributes)) > 0;
+        return $result || $this->isChangedChildren();
     }
     
     public function isDeleting()
     {
-		return ($this->_oldAttributes[$this->_actualityColumn] == 1 && $this->attributes[$this->_actualityColumn] == 0);
+        return ($this->_oldAttributes[$this->_actualityColumn] == 1 && $this->attributes[$this->_actualityColumn] == 0);
     }
 
     public function save($runValidation=true,$attributes=null)
     {
-		$versionDateColumn = $this->_versionDateColumn;
-		$isActualColumn = $this->_actualityColumn;
+        $versionDateColumn = $this->_versionDateColumn;
+        $isActualColumn = $this->_actualityColumn;
         $keyColumn = $this->_keyColumn;
 
-		if (!$this->isDeleting())
-		{
-			if(!$this->isNewRecord && is_array($this->_oldAttributes))
-			{
-				//check if something changed
-				if (!$this->isChanged()) {
-					return $this->validate();//true;
-				}
-				$this->$versionDateColumn = date('d.m.Y H:i:s');
+        if (!$this->isDeleting()) {
+            if(!$this->isNewRecord && is_array($this->_oldAttributes)) {
+                //check if something changed
+                if (!$this->isChanged()) {
+                    return $this->validate();//true;
+                }
+                $this->$versionDateColumn = date('d.m.Y H:i:s');
 
-				//force insert instead of saving
-				$this->primaryKey = null;	    
-				$this->setIsNewRecord(true);
-				$this->setScenario('insert');
-			}
-			else
-			{
-				$this->$versionDateColumn = trim($this->$versionDateColumn) ? date('d.m.Y H:i:s', strtotime($this->$versionDateColumn)) : date('d.m.Y H:i:s');
-			}
+                //force insert instead of saving
+                $this->primaryKey = null;        
+                $this->setIsNewRecord(true);
+                $this->setScenario('insert');
+            }
+            else
+                $this->$versionDateColumn = trim($this->$versionDateColumn) ? date('d.m.Y H:i:s', strtotime($this->$versionDateColumn)) : date('d.m.Y H:i:s');
 
-			$this->model()->updateAll(array($isActualColumn => 0), $this->getDeleteCriteria());
-		}
-		else 
-			return $this->delete();
+            $this->model()->updateAll(array($isActualColumn => 0), $this->getDeleteCriteria());
+        }
+        else 
+            return $this->delete();
 
-		return parent::save($runValidation, $attributes);
+        return parent::save($runValidation, $attributes);
     }
     
     protected function afterSave()
@@ -176,26 +171,26 @@ class VersionedActiveRecord extends CActiveRecord
     
     public function setSubKeyColumn($value)
     {
-		$subKeyColumn = $this->_subKeyColumn;
-		$this->$subKeyColumn = $value;
+        $subKeyColumn = $this->_subKeyColumn;
+        $this->$subKeyColumn = $value;
     }
     
     public function getActuality()
     {
-		$actualityColumn = $this->_actualityColumn;
-		return $this->$actualityColumn;
+        $actualityColumn = $this->_actualityColumn;
+        return $this->$actualityColumn;
     }
     
     public function setActuality($actuality)
     {
-		$actualityColumn = $this->_actualityColumn;
-		$this->$actualityColumn = $actuality;
+        $actualityColumn = $this->_actualityColumn;
+        $this->$actualityColumn = $actuality;
     }
     
     public static function resetActuality($array)
     {
-		foreach($array as $item)
-			$item->setActuality(0);
+        foreach($array as $item)
+            $item->setActuality(0);
     }
 }
 ?>
