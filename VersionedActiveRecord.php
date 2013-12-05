@@ -52,14 +52,14 @@ class VersionedActiveRecord extends CActiveRecord
         $criteria->addCondition($isActualColumn.'=1');
 
         if (trim($subKeyColumn)) {
-			$subKeyColumnValue = isset($this->_oldAttributes[$subKeyColumn]) ? 
-			$this->_oldAttributes[$subKeyColumn] :
-			$this->$subKeyColumn;
-			if (strlen(trim($subKeyColumnValue)))
-				$criteria->compare($subKeyColumn,$subKeyColumnValue);
-			else
-				$criteria->addCondition('('.$subKeyColumn.' IS NULL OR '.$subKeyColumn.' = \'\')');
-		}
+            $subKeyColumnValue = isset($this->_oldAttributes[$subKeyColumn]) ? 
+            $this->_oldAttributes[$subKeyColumn] :
+            $this->$subKeyColumn;
+            if (strlen(trim($subKeyColumnValue)))
+                $criteria->compare($subKeyColumn,$subKeyColumnValue);
+            else
+                $criteria->addCondition('('.$subKeyColumn.' IS NULL OR '.$subKeyColumn.' = \'\')');
+        }
 
         return $criteria;
     }
